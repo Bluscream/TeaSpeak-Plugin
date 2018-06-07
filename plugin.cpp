@@ -143,18 +143,14 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 }
 
 void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenuType type, int menuItemID, uint64 selectedItemID) {
-	anyID ownID;
-	ts3Functions.getClientID(serverConnectionHandlerID, &ownID);
-	uint64 ownCID;
-	ts3Functions.getChannelOfClient(serverConnectionHandlerID, ownID, &ownCID);
 	switch(type) {
 		case PLUGIN_MENU_TYPE_GLOBAL:
 			switch(menuItemID) {
 				case MENU_ID_GLOBAL_1:
-					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list server", ownCID, NULL);
+					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list server", 0, NULL);
 					break;
 				case MENU_ID_GLOBAL_2:
-					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot formats", ownCID, NULL);
+					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot formats", 0, NULL);
 					break;
 				default:
 					break;
@@ -163,8 +159,12 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 		case PLUGIN_MENU_TYPE_CHANNEL:
 			switch(menuItemID) {
 				case MENU_ID_CHANNEL_1:
+					anyID ownID;
+					ts3Functions.getClientID(serverConnectionHandlerID, &ownID);
+					uint64 ownCID;
+					ts3Functions.getChannelOfClient(serverConnectionHandlerID, ownID, &ownCID);
 					ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, selectedItemID, "123", NULL);
-					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list", selectedItemID, NULL);
+					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list", 0, NULL);
 					ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, ownCID, "123", NULL);
 					break;
 				default:
