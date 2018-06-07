@@ -97,10 +97,6 @@ void ts3plugin_registerPluginID(const char* id) {
 	_strcpy(pluginID, sz, id);
 }
 
-void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) {
-    printf("PLUGIN: currentServerConnectionChanged %llu (%llu)\n", (long long unsigned int)serverConnectionHandlerID, (long long unsigned int)ts3Functions.getCurrentServerConnectionHandlerID());
-}
-
 const char* ts3plugin_infoTitle() {
 	return "TeaSpeak";
 }
