@@ -126,11 +126,6 @@ static struct PluginMenuItem* createMenuItem(enum PluginMenuType type, int id, c
 #define CREATE_MENU_ITEM(a, b, c, d) (*menuItems)[n++] = createMenuItem(a, b, c, d);
 #define END_CREATE_MENUS (*menuItems)[n++] = NULL; assert(n == sz);
 
-/*
- * Menu IDs for this plugin. Pass these IDs when creating a menuitem to the TS3 client. When the menu item is triggered,
- * ts3plugin_onMenuItemEvent will be called passing the menu ID of the triggered menu item.
- * These IDs are freely choosable by the plugin author. It's not really needed to use an enum, it just looks prettier.
- */
 enum {
 	MENU_ID_CHANNEL_1 = 1,
 	MENU_ID_GLOBAL_1,
@@ -138,24 +133,22 @@ enum {
 };
 
 void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
-
 	BEGIN_CREATE_MENUS(3);
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "List Musicbots", "teaspeak.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_1, "List Musicbots", "teaspeak.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "List Supported Formats", "teaspeak.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "List Musicbots", "");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_1, "List Musicbots", "");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "List Supported Formats", "");
 	END_CREATE_MENUS;
-
 	*menuIcon = (char*)malloc(PLUGIN_MENU_BUFSZ * sizeof(char));
 	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "teaspeak.png");
 }
 
 void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenuType type, int menuItemID, uint64 selectedItemID) {
+	anyID ownID;
+	ts3Functions.getClientID(serverConnectionHandlerID, &ownID);
+	uint64 ownCID;
+	ts3Functions.getChannelOfClient(serverConnectionHandlerID, ownID, &ownCID);
 	switch(type) {
 		case PLUGIN_MENU_TYPE_GLOBAL:
-			anyID ownID;
-			ts3Functions.getClientID(serverConnectionHandlerID, &ownID);
-			uint64 ownCID;
-			ts3Functions.getChannelOfClient(serverConnectionHandlerID, ownID, &ownCID);
 			switch(menuItemID) {
 				case MENU_ID_GLOBAL_1:
 					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list server", ownCID, NULL);
@@ -168,10 +161,11 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			}
 			break;
 		case PLUGIN_MENU_TYPE_CHANNEL:
-			/* Channel contextmenu item was triggered. selectedItemID is the channelID of the selected channel */
 			switch(menuItemID) {
 				case MENU_ID_CHANNEL_1:
+					ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, selectedItemID, "123", NULL);
 					ts3Functions.requestSendChannelTextMsg(serverConnectionHandlerID, ".mbot list", selectedItemID, NULL);
+					ts3Functions.requestClientMove(serverConnectionHandlerID, ownID, ownCID, "123", NULL);
 					break;
 				default:
 					break;
